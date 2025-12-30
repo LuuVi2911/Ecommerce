@@ -2,6 +2,8 @@
 
 A comprehensive, production-ready ecommerce backend API built with NestJS, featuring multi-language support, role-based access control, real-time notifications, and complete order management.
 
+> **Note:** The frontend UI is coming soon! This repository currently contains the backend API only.
+
 ## 🚀 Features
 
 ### Authentication & Security
