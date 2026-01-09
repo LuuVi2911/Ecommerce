@@ -3,7 +3,6 @@ import { ProductRepo } from 'src/routes/product/product.repo'
 import {
   CreateProductBodyType,
   GetManageProductsQueryType,
-  GetProductsQueryType,
   UpdateProductBodyType,
 } from 'src/routes/product/product.model'
 import { NotFoundRecordException } from 'src/shared/error'

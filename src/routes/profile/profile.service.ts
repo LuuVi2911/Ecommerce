@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common'
 import { InvalidPasswordException, NotFoundRecordException } from 'src/shared/error'
-import { ChangePasswordBodyType, UpdateMeBodySchema, UpdateMeBodyType } from './profile.model'
+import { ChangePasswordBodyType, UpdateMeBodyType } from './profile.model'
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { isUniqueConstraintPrismaError } from 'src/shared/helpers'

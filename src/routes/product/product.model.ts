@@ -15,12 +15,7 @@ function generateSKUs(variants: VariantsType) {
   const options = variants.map((variant) => variant.options)
   const combinations = getCombinations(options)
 
-  return combinations.map((value) => ({
-    value,
-    price: 0,
-    stock: 100,
-    image: '',
-  }))
+  return combinations.map((value) => ({ value }))
 }
 
 /**

@@ -33,7 +33,7 @@ export class AccessTokenGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest()
-    // Extract và validate token
+    // Extract and validate token
     const decodedAccessToken = await this.extractAndValidateToken(request)
 
     // Check user permission

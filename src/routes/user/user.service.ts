@@ -55,7 +55,6 @@ export class UserService {
         roleNameAgent: createdByRoleName,
         roleIdTarget: data.roleId,
       })
-      // Hash the password
       const hashedPassword = await this.hashingService.hash(data.password)
 
       const user = await this.userRepo.create({
@@ -116,7 +115,6 @@ export class UserService {
       })
 
       // get the initial roleId of the user to be updated to check if the updater has permission to update
-      // do not use data.roleId because this data may be intentionally misused
       const roleIdTarget = await this.getRoleIdByUserId(id)
       await this.verifyRole({
         roleNameAgent: updatedByRoleName,

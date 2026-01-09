@@ -13,7 +13,7 @@ import { generateOTP, isNotFoundPrismaError, isUniqueConstraintPrismaError } fro
 import { SharedUserRepository } from 'src/shared/repositories/shared-user.repo'
 import { HashingService } from 'src/shared/services/hashing.service'
 import { TokenService } from 'src/shared/services/token.service'
-import ms from 'ms'
+import ms, { StringValue } from 'ms'
 import envConfig from 'src/shared/config'
 import { TypeOfVerificationCode, TypeOfVerificationCodeType } from 'src/shared/constants/auth.constant'
 import { EmailService } from 'src/shared/services/email.service'
@@ -119,7 +119,7 @@ export class AuthService {
       email: body.email,
       code,
       type: body.type,
-      expiresAt: addMilliseconds(new Date(), ms(envConfig.OTP_EXPIRES_IN)).toISOString(),
+      expiresAt: addMilliseconds(new Date(), ms(envConfig.OTP_EXPIRES_IN as StringValue)).toISOString(),
     })
     // 3. send OTP code
     const { error } = await this.emailService.sendOTP({
@@ -190,17 +190,15 @@ export class AuthService {
   }
 
   async generateTokens({ userId, deviceId, roleId, roleName }: AccessTokenPayloadCreate) {
-    const [accessToken, refreshToken] = await Promise.all([
-      this.tokenService.signAccessToken({
-        userId,
-        deviceId,
-        roleId,
-        roleName,
-      }),
-      this.tokenService.signRefreshToken({
-        userId,
-      }),
-    ])
+    const accessToken = this.tokenService.signAccessToken({
+      userId,
+      deviceId,
+      roleId,
+      roleName,
+    })
+    const refreshToken = this.tokenService.signRefreshToken({
+      userId,
+    })
     const decodedRefreshToken = await this.tokenService.verifyRefreshToken(refreshToken)
     await this.authRepository.createRefreshToken({
       token: refreshToken,

@@ -6,7 +6,6 @@ interface OTPEmailProps {
   title: string
 }
 
-const logoUrl = 'https://duthanhduoc.com/_next/image?url=%2Fimg%2Fme.jpg&w=1080&q=75'
 
 export const OTPEmail = ({ otpCode, title }: OTPEmailProps) => (
   <Html>
@@ -15,22 +14,20 @@ export const OTPEmail = ({ otpCode, title }: OTPEmailProps) => (
     </Head>
     <Body style={main}>
       <Container style={container}>
-        <Img src={logoUrl} width="212" height="88" alt="Logo" style={logo} />
-        <Text style={tertiary}>Mã xác thực OTP</Text>
-        <Heading style={secondary}>Hãy nhập mã xác thực OTP sau vào website</Heading>
+        <Text style={tertiary}>OTP Code</Text>
+        <Heading style={secondary}>Please enter the OTP code below into the website</Heading>
         <Section style={codeContainer}>
           <Text style={code}>{otpCode}</Text>
         </Section>
-        <Text style={paragraph}>Nếu bạn không chủ động thực hiện hành động này, xin hãy bỏ qua email?</Text>
+        <Text style={paragraph}>If you did not initiate this action, please ignore this email.</Text>
       </Container>
-      <Text style={footer}>From Được Edu with ❤️.</Text>
     </Body>
   </Html>
 )
 
 OTPEmail.PreviewProps = {
   otpCode: '144833',
-  title: 'Mã OTP',
+  title: 'OTP Code',
 } as OTPEmailProps
 
 export default OTPEmail

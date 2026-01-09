@@ -23,7 +23,7 @@ const configSchema = z.object({
   ADMIN_PASSWORD: z.string(),
   ADMIN_EMAIL: z.string(),
   ADMIN_PHONE_NUMBER: z.string(),
-  OTP_EXPIRES_IN: z.string(),
+  OTP_EXPIRES_IN: z.string().regex(/^\d+(ms|s|m|h|d)$/),
   RESEND_API_KEY: z.string(),
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),

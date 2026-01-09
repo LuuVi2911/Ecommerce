@@ -1,5 +1,5 @@
 /**
- * Method decorator để tự động serialize return value
+ * Method decorator for automatically serialize return value
  */
 export function Serialize() {
   return function (target: any, propertyName: string, descriptor: PropertyDescriptor) {

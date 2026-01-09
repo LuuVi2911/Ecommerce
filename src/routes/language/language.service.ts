@@ -54,10 +54,9 @@ export class LanguageService {
       throw error
     }
   }
-
+  // Hard delete since it is not used in the system currently
   async delete(id: string) {
     try {
-      // hard delete
       await this.languageRepo.delete(id, true)
       return {
         message: 'Delete successfully',

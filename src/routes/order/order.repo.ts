@@ -45,7 +45,7 @@ export class OrderRepo {
       where,
     })
     // get list of orders
-    const data$ = await this.prismaService.order.findMany({
+    const data$ = this.prismaService.order.findMany({
       where,
       include: {
         items: true,
