@@ -13,7 +13,7 @@ export class EmailService {
   async sendOTP(payload: { email: string; code: string }) {
     const subject = 'OTP Code'
     return this.resend.emails.send({
-      from: 'Ecommerce <no-reply@ecommerce.com>',
+      from: 'Ecommerce <onboarding@resend.dev>',
       to: [payload.email],
       subject,
       react: <OTPEmail otpCode={payload.code} title={subject} />,
