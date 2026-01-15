@@ -14,6 +14,8 @@ import { SharedRoleRepository } from 'src/shared/repositories/shared-role.repo'
 import { S3Service } from 'src/shared/services/s3.service'
 import { SharedPaymentRepository } from 'src/shared/repositories/shared-payment.repo'
 import { SharedWebsocketRepository } from 'src/shared/repositories/shared-websocket.repo'
+import { CacheVersionService } from 'src/shared/services/cache-version.service'
+import { CacheKeyService } from 'src/shared/services/cache-key.service'
 
 const sharedServices = [
   PrismaService,
@@ -26,6 +28,8 @@ const sharedServices = [
   SharedPaymentRepository,
   SharedWebsocketRepository,
   S3Service,
+  CacheVersionService,
+  CacheKeyService,
 ]
 
 @Global()

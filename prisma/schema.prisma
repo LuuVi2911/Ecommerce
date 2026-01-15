@@ -250,6 +250,9 @@ model Product {
   updatedAt DateTime  @updatedAt
 
   @@index([deletedAt])
+  @@index([publishedAt])
+  @@index([createdAt])
+  @@index([brandId])
 }
 
 model ProductTranslation {
@@ -455,6 +458,8 @@ model Order {
 
   @@index([deletedAt])
   @@index([status, deletedAt])
+  @@index([userId])
+  @@index([paymentId])
 }
 
 model Payment {

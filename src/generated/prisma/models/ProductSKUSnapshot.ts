@@ -82,7 +82,7 @@ export type ProductSKUSnapshotCountAggregateOutputType = {
   orderId: number
   quantity: number
   productId: number
-  productTranslations: number
+  productTranslations:PrismaJson.ProductTranslations
   createdAt: number
   _all: number
 }
@@ -276,10 +276,10 @@ export type ProductSKUSnapshotWhereInput = {
   skuPrice?: Prisma.FloatFilter<"ProductSKUSnapshot"> | number
   image?: Prisma.StringFilter<"ProductSKUSnapshot"> | string
   skuValue?: Prisma.StringFilter<"ProductSKUSnapshot"> | string
-  skuId?: Prisma.IntNullableFilter<"ProductSKUSnapshot"> | number | null
-  orderId?: Prisma.IntNullableFilter<"ProductSKUSnapshot"> | number | null
+  skuId?:unknown | null
+  orderId?:unknown | null
   quantity?: Prisma.IntFilter<"ProductSKUSnapshot"> | number
-  productId?: Prisma.IntNullableFilter<"ProductSKUSnapshot"> | number | null
+  productId?:unknown | null
   productTranslations?: Prisma.JsonFilter<"ProductSKUSnapshot">
   createdAt?: Prisma.DateTimeFilter<"ProductSKUSnapshot"> | Date | string
   sku?: Prisma.XOR<Prisma.SKUNullableScalarRelationFilter, Prisma.SKUWhereInput> | null
@@ -352,10 +352,10 @@ export type ProductSKUSnapshotScalarWhereWithAggregatesInput = {
   skuPrice?: Prisma.FloatWithAggregatesFilter<"ProductSKUSnapshot"> | number
   image?: Prisma.StringWithAggregatesFilter<"ProductSKUSnapshot"> | string
   skuValue?: Prisma.StringWithAggregatesFilter<"ProductSKUSnapshot"> | string
-  skuId?: Prisma.IntNullableWithAggregatesFilter<"ProductSKUSnapshot"> | number | null
-  orderId?: Prisma.IntNullableWithAggregatesFilter<"ProductSKUSnapshot"> | number | null
+  skuId?:unknown | null
+  orderId?:unknown | null
   quantity?: Prisma.IntWithAggregatesFilter<"ProductSKUSnapshot"> | number
-  productId?: Prisma.IntNullableWithAggregatesFilter<"ProductSKUSnapshot"> | number | null
+  productId?:unknown | null
   productTranslations?: Prisma.JsonWithAggregatesFilter<"ProductSKUSnapshot">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ProductSKUSnapshot"> | Date | string
 }
@@ -706,10 +706,10 @@ export type ProductSKUSnapshotScalarWhereInput = {
   skuPrice?: Prisma.FloatFilter<"ProductSKUSnapshot"> | number
   image?: Prisma.StringFilter<"ProductSKUSnapshot"> | string
   skuValue?: Prisma.StringFilter<"ProductSKUSnapshot"> | string
-  skuId?: Prisma.IntNullableFilter<"ProductSKUSnapshot"> | number | null
-  orderId?: Prisma.IntNullableFilter<"ProductSKUSnapshot"> | number | null
+  skuId?:unknown | null
+  orderId?:unknown | null
   quantity?: Prisma.IntFilter<"ProductSKUSnapshot"> | number
-  productId?: Prisma.IntNullableFilter<"ProductSKUSnapshot"> | number | null
+  productId?:unknown | null
   productTranslations?: Prisma.JsonFilter<"ProductSKUSnapshot">
   createdAt?: Prisma.DateTimeFilter<"ProductSKUSnapshot"> | Date | string
 }

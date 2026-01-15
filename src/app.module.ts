@@ -37,31 +37,18 @@ import { CacheModule } from '@nestjs/cache-manager'
 import { createKeyv } from '@keyv/redis'
 import { LoggerModule } from 'nestjs-pino'
 import pino from 'pino'
+import { HealthModule } from 'src/routes/health/health.module'
 
 @Module({
   imports: [
     LoggerModule.forRoot({
       pinoHttp: {
+        level: 'error', // Only log errors, reduce verbosity
         serializers: {
-          req(req: any) {
-            return {
-              method: req.method,
-              url: req.url,
-              query: req.query,
-              params: req.params,
-            }
-          },
-          res(res: any) {
-            return {
-              statusCode: res.statusCode,
-            }
-          },
+          req: () => ({}), // Don't serialize request details
+          res: () => ({}), // Don't serialize response details
         },
-        stream: pino.destination({
-          dest: path.resolve('logs/app.log'),
-          sync: false, // Asynchronous logging
-          mkdir: true, // Create the directory if it doesn't exist
-        }),
+        quietReqLogger: true, // Suppress request logging
       },
     }),
     CacheModule.registerAsync({
@@ -99,6 +86,11 @@ import pino from 'pino'
           ttl: 120000, // 2 minutes
           limit: 7,
         },
+        {
+          name: 'strict',
+          ttl: 60000, // 1 minute - stricter limit for write operations
+          limit: 3,
+        },
       ],
     }),
     WebsocketModule,
@@ -120,6 +112,7 @@ import pino from 'pino'
     OrderModule,
     PaymentModule,
     ReviewModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [

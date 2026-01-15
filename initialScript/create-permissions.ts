@@ -33,22 +33,18 @@ async function bootstrap() {
         }
       })
       .filter((item) => item !== undefined)
-  // create a map of permissions in database with key [method-path]
   const permissionInDbMap: Record<string, (typeof permissionsInDb)[0]> = permissionsInDb.reduce((acc, item) => {
     acc[`${item.method}-${item.path}`] = item
     return acc
   }, {})
-  // create a map of available routes with key [method-path]
   const availableRoutesMap: Record<string, (typeof availableRoutes)[0]> = availableRoutes.reduce((acc, item) => {
     acc[`${item.method}-${item.path}`] = item
     return acc
   }, {})
 
-  // find permissions in database that do not exist in availableRoutes
   const permissionsToDelete = permissionsInDb.filter((item) => {
     return !availableRoutesMap[`${item.method}-${item.path}`]
   })
-  // delete permissions that do not exist in availableRoutes
   if (permissionsToDelete.length > 0) {
     const deleteResult = await prisma.permission.deleteMany({
       where: {
@@ -61,11 +57,9 @@ async function bootstrap() {
   } else {
     console.log('No permissions to delete')
   }
-  // find routes that do not exist in permissionsInDb
   const routesToAdd = availableRoutes.filter((item) => {
     return !permissionInDbMap[`${item.method}-${item.path}`]
   })
-  // add these routes as permissions in database
   if (routesToAdd.length > 0) {
     const permissionsToAdd = await prisma.permission.createMany({
       data: routesToAdd,
@@ -76,7 +70,6 @@ async function bootstrap() {
     console.log('No permissions to add')
   }
 
-  // get permissions in database after adding or deleting
   const updatedPermissionsInDb = await prisma.permission.findMany({
     where: {
       deletedAt: null,
@@ -99,7 +92,6 @@ async function bootstrap() {
 }
 
 const updateRole = async (permissionIds: { id: number }[], roleName: string) => {
-  // update the permissions in Admin Role
   const role = await prisma.role.findFirstOrThrow({
     where: {
       name: roleName,

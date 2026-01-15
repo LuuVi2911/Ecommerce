@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Cache } from 'cache-manager'
 import { Prisma } from 'src/generated/prisma/client'
 import {
   CreateProductBodyType,
@@ -10,13 +12,112 @@ import { ALL_LANGUAGE_CODE, OrderByType, SortBy, SortByType } from 'src/shared/c
 import { SerializeAll } from 'src/shared/constants/serialize.decorator'
 import { ProductType } from 'src/shared/models/shared-product.model'
 import { PrismaService } from 'src/shared/services/prisma.service'
+import { CacheVersionService } from 'src/shared/services/cache-version.service'
+import { CacheKeyService } from 'src/shared/services/cache-key.service'
+
+// Cache TTL: 5 minutes
+const PRODUCT_LIST_CACHE_TTL = 5 * 60 * 1000
 
 @Injectable()
 @SerializeAll()
 export class ProductRepo {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly cacheVersionService: CacheVersionService,
+    private readonly cacheKeyService: CacheKeyService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+  ) {}
 
   async list({
+    limit,
+    page,
+    name,
+    brandIds,
+    categories,
+    minPrice,
+    maxPrice,
+    createdById,
+    isPublic,
+    languageId,
+    orderBy,
+    sortBy,
+  }: {
+    limit: number
+    page: number
+    name?: string
+    brandIds?: number[]
+    categories?: number[]
+    minPrice?: number
+    maxPrice?: number
+    createdById?: number
+    isPublic?: boolean
+    languageId: string
+    orderBy: OrderByType
+    sortBy: SortByType
+  }): Promise<GetProductsResType> {
+    // Only cache pages 1-3 for public product listings
+    const shouldCache = isPublic === true && this.cacheKeyService.shouldCachePage(page)
+
+    if (shouldCache) {
+      // Get current cache version
+      const version = await this.cacheVersionService.getVersion(
+        this.cacheVersionService.getProductListVersionKey(),
+      )
+
+      // Generate cache key from query params
+      const filters = { name, brandIds, categories, minPrice, maxPrice, createdById, isPublic, orderBy, sortBy }
+      const cacheKey = this.cacheKeyService.generateProductListKey({
+        version,
+        filters,
+        languageId,
+        page,
+        limit,
+      })
+
+      // Check cache first
+      const cached = await this.cacheManager.get<GetProductsResType>(cacheKey)
+      if (cached) {
+        return cached
+      }
+
+      // Query DB and cache result
+      const result = await this.queryProductList({
+        limit,
+        page,
+        name,
+        brandIds,
+        categories,
+        minPrice,
+        maxPrice,
+        createdById,
+        isPublic,
+        languageId,
+        orderBy,
+        sortBy,
+      })
+
+      await this.cacheManager.set(cacheKey, result, PRODUCT_LIST_CACHE_TTL)
+      return result
+    }
+
+    // Skip cache for pages > 3 or non-public requests, query DB directly
+    return this.queryProductList({
+      limit,
+      page,
+      name,
+      brandIds,
+      categories,
+      minPrice,
+      maxPrice,
+      createdById,
+      isPublic,
+      languageId,
+      orderBy,
+      sortBy,
+    })
+  }
+
+  private async queryProductList({
     limit,
     page,
     name,
@@ -197,7 +298,7 @@ export class ProductRepo {
     }) as any
   }
 
-  create({
+  async create({
     createdById,
     data,
   }: {
@@ -205,7 +306,7 @@ export class ProductRepo {
     data: CreateProductBodyType
   }): Promise<GetProductDetailResType> {
     const { skus, categories, ...productData } = data
-    return this.prismaService.product.create({
+    const result = await this.prismaService.product.create({
       data: {
         createdById,
         ...productData,
@@ -246,7 +347,12 @@ export class ProductRepo {
           },
         },
       },
-    }) as any
+    })
+
+    // Invalidate product list caches
+    await this.cacheVersionService.invalidateProductListCaches()
+
+    return result as any
   }
 
   async update({
@@ -346,6 +452,9 @@ export class ProductRepo {
       }),
     ])
 
+    // Invalidate product list caches (product update or SKU stock changes)
+    await this.cacheVersionService.invalidateProductListCaches()
+
     return product as any
   }
 
@@ -359,46 +468,54 @@ export class ProductRepo {
     },
     isHard?: boolean,
   ): Promise<ProductType> {
+    let product: ProductType
+
     if (isHard) {
-      return this.prismaService.product.delete({
+      product = (await this.prismaService.product.delete({
         where: {
           id,
         },
-      }) as any
+      })) as any
+    } else {
+      const now = new Date()
+      const [deletedProduct] = await Promise.all([
+        this.prismaService.product.update({
+          where: {
+            id,
+            deletedAt: null,
+          },
+          data: {
+            deletedAt: now,
+            deletedById,
+          },
+        }),
+        this.prismaService.productTranslation.updateMany({
+          where: {
+            productId: id,
+            deletedAt: null,
+          },
+          data: {
+            deletedAt: now,
+            deletedById,
+          },
+        }),
+        this.prismaService.sKU.updateMany({
+          where: {
+            productId: id,
+            deletedAt: null,
+          },
+          data: {
+            deletedAt: now,
+            deletedById,
+          },
+        }),
+      ])
+      product = deletedProduct as any
     }
-    const now = new Date()
-    const [product] = await Promise.all([
-      this.prismaService.product.update({
-        where: {
-          id,
-          deletedAt: null,
-        },
-        data: {
-          deletedAt: now,
-          deletedById,
-        },
-      }),
-      this.prismaService.productTranslation.updateMany({
-        where: {
-          productId: id,
-          deletedAt: null,
-        },
-        data: {
-          deletedAt: now,
-          deletedById,
-        },
-      }),
-      this.prismaService.sKU.updateMany({
-        where: {
-          productId: id,
-          deletedAt: null,
-        },
-        data: {
-          deletedAt: now,
-          deletedById,
-        },
-      }),
-    ])
-    return product as any
+
+    // Invalidate product list caches
+    await this.cacheVersionService.invalidateProductListCaches()
+
+    return product
   }
 }

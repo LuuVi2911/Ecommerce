@@ -86,7 +86,7 @@ export type ProductCountAggregateOutputType = {
   virtualPrice: number
   brandId: number
   images: number
-  variants: number
+  variants:PrismaJson.Variants
   createdById: number
   updatedById: number
   deletedById: number
@@ -301,8 +301,8 @@ export type ProductWhereInput = {
   images?: Prisma.StringNullableListFilter<"Product">
   variants?: Prisma.JsonFilter<"Product">
   createdById?: Prisma.IntFilter<"Product"> | number
-  updatedById?: Prisma.IntNullableFilter<"Product"> | number | null
-  deletedById?: Prisma.IntNullableFilter<"Product"> | number | null
+  updatedById?:unknown | null
+  deletedById?:unknown | null
   deletedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string
@@ -410,8 +410,8 @@ export type ProductScalarWhereWithAggregatesInput = {
   images?: Prisma.StringNullableListFilter<"Product">
   variants?: Prisma.JsonWithAggregatesFilter<"Product">
   createdById?: Prisma.IntWithAggregatesFilter<"Product"> | number
-  updatedById?: Prisma.IntNullableWithAggregatesFilter<"Product"> | number | null
-  deletedById?: Prisma.IntNullableWithAggregatesFilter<"Product"> | number | null
+  updatedById?:unknown | null
+  deletedById?:unknown | null
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Product"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Product"> | Date | string
@@ -1155,8 +1155,8 @@ export type ProductScalarWhereInput = {
   images?: Prisma.StringNullableListFilter<"Product">
   variants?: Prisma.JsonFilter<"Product">
   createdById?: Prisma.IntFilter<"Product"> | number
-  updatedById?: Prisma.IntNullableFilter<"Product"> | number | null
-  deletedById?: Prisma.IntNullableFilter<"Product"> | number | null
+  updatedById?:unknown | null
+  deletedById?:unknown | null
   deletedAt?: Prisma.DateTimeNullableFilter<"Product"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Product"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Product"> | Date | string

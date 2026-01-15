@@ -80,7 +80,7 @@ export type OrderCountAggregateOutputType = {
   id: number
   userId: number
   status: number
-  receiver: number
+  receiver:PrismaJson.Receiver
   shopId: number
   paymentId: number
   createdById: number
@@ -286,11 +286,11 @@ export type OrderWhereInput = {
   userId?: Prisma.IntFilter<"Order"> | number
   status?: Prisma.EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
   receiver?: Prisma.JsonFilter<"Order">
-  shopId?: Prisma.IntNullableFilter<"Order"> | number | null
+  shopId?:unknown | null
   paymentId?: Prisma.IntFilter<"Order"> | number
-  createdById?: Prisma.IntNullableFilter<"Order"> | number | null
-  updatedById?: Prisma.IntNullableFilter<"Order"> | number | null
-  deletedById?: Prisma.IntNullableFilter<"Order"> | number | null
+  createdById?:unknown | null
+  updatedById?:unknown | null
+  deletedById?:unknown | null
   deletedAt?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string
@@ -384,11 +384,11 @@ export type OrderScalarWhereWithAggregatesInput = {
   userId?: Prisma.IntWithAggregatesFilter<"Order"> | number
   status?: Prisma.EnumOrderStatusWithAggregatesFilter<"Order"> | $Enums.OrderStatus
   receiver?: Prisma.JsonWithAggregatesFilter<"Order">
-  shopId?: Prisma.IntNullableWithAggregatesFilter<"Order"> | number | null
+  shopId?:unknown | null
   paymentId?: Prisma.IntWithAggregatesFilter<"Order"> | number
-  createdById?: Prisma.IntNullableWithAggregatesFilter<"Order"> | number | null
-  updatedById?: Prisma.IntNullableWithAggregatesFilter<"Order"> | number | null
-  deletedById?: Prisma.IntNullableWithAggregatesFilter<"Order"> | number | null
+  createdById?:unknown | null
+  updatedById?:unknown | null
+  deletedById?:unknown | null
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Order"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Order"> | Date | string
@@ -1148,11 +1148,11 @@ export type OrderScalarWhereInput = {
   userId?: Prisma.IntFilter<"Order"> | number
   status?: Prisma.EnumOrderStatusFilter<"Order"> | $Enums.OrderStatus
   receiver?: Prisma.JsonFilter<"Order">
-  shopId?: Prisma.IntNullableFilter<"Order"> | number | null
+  shopId?:unknown | null
   paymentId?: Prisma.IntFilter<"Order"> | number
-  createdById?: Prisma.IntNullableFilter<"Order"> | number | null
-  updatedById?: Prisma.IntNullableFilter<"Order"> | number | null
-  deletedById?: Prisma.IntNullableFilter<"Order"> | number | null
+  createdById?:unknown | null
+  updatedById?:unknown | null
+  deletedById?:unknown | null
   deletedAt?: Prisma.DateTimeNullableFilter<"Order"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Order"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Order"> | Date | string

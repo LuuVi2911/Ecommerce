@@ -53,20 +53,20 @@ export class CartRepo {
         },
       }),
     ])
-    // Kiểm tra tồn tại của SKU
+    // Chekc if SKU is exist
     if (!sku) {
       throw NotFoundSKUException
     }
     if (cartItem && isCreate && quantity + cartItem.quantity > sku.stock) {
       throw InvalidQuantityException
     }
-    // Kiểm tra lượng hàng còn lại
+    // Check if the stock is enough
     if (sku.stock < 1 || sku.stock < quantity) {
       throw OutOfStockSKUException
     }
     const { product } = sku
 
-    // Kiểm tra sản phẩm đã bị xóa hoặc có công khai hay không
+    // Check if the product is deleted or hidden
     if (
       product.deletedAt !== null ||
       product.publishedAt === null ||
@@ -156,7 +156,7 @@ export class CartRepo {
   }): Promise<GetCartResType> {
     const skip = (page - 1) * limit
     const take = limit
-    // Đếm tổng số nhóm sản phẩm
+    // Count the total shops existed in cart 
     const totalItems$ = this.prismaService.$queryRaw<{ createdById: number }[]>`
       SELECT
         "Product"."createdById"
@@ -169,7 +169,7 @@ export class CartRepo {
         AND "Product"."publishedAt" <= NOW()
       GROUP BY "Product"."createdById"
     `
-    const data$ = await this.prismaService.$queryRaw<CartItemDetailType[]>`
+    const data$ = this.prismaService.$queryRaw<CartItemDetailType[]>`
      SELECT
        "Product"."createdById",
        json_agg(
@@ -233,7 +233,7 @@ export class CartRepo {
         AND "Product"."publishedAt" <= NOW()
      GROUP BY "Product"."createdById", "User"."id"
      ORDER BY MAX("CartItem"."updatedAt") DESC
-      LIMIT ${take} 
+      LIMIT ${take}
       OFFSET ${skip}
    `
     const [data, totalItems] = await Promise.all([data$, totalItems$])

@@ -1,4 +1,6 @@
-import { Injectable } from '@nestjs/common'
+import { Inject, Injectable } from '@nestjs/common'
+import { CACHE_MANAGER } from '@nestjs/cache-manager'
+import { Cache } from 'cache-manager'
 import {
   CreateCategoryBodyType,
   GetAllCategoriesResType,
@@ -9,13 +11,55 @@ import {
 import { ALL_LANGUAGE_CODE } from 'src/shared/constants/other.constant'
 import { SerializeAll } from 'src/shared/constants/serialize.decorator'
 import { PrismaService } from 'src/shared/services/prisma.service'
+import { CacheVersionService } from 'src/shared/services/cache-version.service'
+import { CacheKeyService } from 'src/shared/services/cache-key.service'
+
+// Cache TTL: 5 minutes
+const CATEGORY_LIST_CACHE_TTL = 5 * 60 * 1000
 
 @Injectable()
 @SerializeAll()
 export class CategoryRepo {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private readonly cacheVersionService: CacheVersionService,
+    private readonly cacheKeyService: CacheKeyService,
+    @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
+  ) {}
 
   async findAll({
+    parentCategoryId,
+    languageId,
+  }: {
+    parentCategoryId?: number | null
+    languageId: string
+  }): Promise<GetAllCategoriesResType> {
+    // Get current cache version
+    const version = await this.cacheVersionService.getVersion(
+      this.cacheVersionService.getCategoryListVersionKey(),
+    )
+
+    // Generate cache key (no pagination for categories)
+    const filters = { parentCategoryId }
+    const cacheKey = this.cacheKeyService.generateCategoryListKey({
+      version,
+      filters,
+      languageId,
+    })
+
+    // Check cache first
+    const cached = await this.cacheManager.get<GetAllCategoriesResType>(cacheKey)
+    if (cached) {
+      return cached
+    }
+
+    // Query DB and cache result
+    const result = await this.queryCategoryList({ parentCategoryId, languageId })
+    await this.cacheManager.set(cacheKey, result, CATEGORY_LIST_CACHE_TTL)
+    return result
+  }
+
+  private async queryCategoryList({
     parentCategoryId,
     languageId,
   }: {
@@ -57,14 +101,14 @@ export class CategoryRepo {
     }) as any
   }
 
-  create({
+  async create({
     createdById,
     data,
   }: {
     createdById: number | null
     data: CreateCategoryBodyType
   }): Promise<CategoryIncludeTranslationType> {
-    return this.prismaService.category.create({
+    const result = await this.prismaService.category.create({
       data: {
         ...data,
         createdById,
@@ -74,10 +118,15 @@ export class CategoryRepo {
           where: { deletedAt: null },
         },
       },
-    }) as any
+    })
+
+    // Invalidate category list caches
+    await this.cacheVersionService.invalidateCategoryListCaches()
+
+    return result as any
   }
 
-  update({
+  async update({
     id,
     updatedById,
     data,
@@ -86,7 +135,7 @@ export class CategoryRepo {
     updatedById: number
     data: UpdateCategoryBodyType
   }): Promise<CategoryIncludeTranslationType> {
-    return this.prismaService.category.update({
+    const result = await this.prismaService.category.update({
       where: {
         id,
         deletedAt: null,
@@ -100,10 +149,15 @@ export class CategoryRepo {
           where: { deletedAt: null },
         },
       },
-    }) as any
+    })
+
+    // Invalidate category list caches
+    await this.cacheVersionService.invalidateCategoryListCaches()
+
+    return result as any
   }
 
-  delete(
+  async delete(
     {
       id,
       deletedById,
@@ -113,23 +167,26 @@ export class CategoryRepo {
     },
     isHard?: boolean,
   ): Promise<CategoryType> {
-    return (
-      isHard
-        ? this.prismaService.category.delete({
-            where: {
-              id,
-            },
-          })
-        : this.prismaService.category.update({
-            where: {
-              id,
-              deletedAt: null,
-            },
-            data: {
-              deletedAt: new Date(),
-              deletedById,
-            },
-          })
-    ) as any
+    const result = await (isHard
+      ? this.prismaService.category.delete({
+          where: {
+            id,
+          },
+        })
+      : this.prismaService.category.update({
+          where: {
+            id,
+            deletedAt: null,
+          },
+          data: {
+            deletedAt: new Date(),
+            deletedById,
+          },
+        }))
+
+    // Invalidate category list caches
+    await this.cacheVersionService.invalidateCategoryListCaches()
+
+    return result as any
   }
 }
